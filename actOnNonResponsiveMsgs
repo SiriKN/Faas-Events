@@ -1,0 +1,51 @@
+function lambda(input,callback)
+{
+	
+	console.info("Event Triggered " + JSON.stringify(input.payload));
+	//Set conversation data
+	
+	let conversation = input.payload;
+	let result=[];
+	let lastMessageFrom = conversation.general.lastMessageComposer;
+	let conversationId = conversation.general.convId;
+	
+	console.info('${conversationId} - Conversation idle');
+	console.info('${conversationId} - Last message is from ${lastMessageFrom}');
+	
+	if(lastMessageFrom == "CONSUMER")
+	{
+		console.info('${conversationId} - Agent/Bot is not responding, transfer to fallback skill - ${process.env.FALLBACK_SKILL}');
+		result =
+		[
+			{
+				type:"systemMessage",
+				test:"Sorry,something gone wrong. Transferring you to a human agent."
+			},
+			{
+				typer:"transfer",
+				skillId: process.env.FALLBACK_SKILL
+			}
+		]
+	}
+	else
+	{
+		console.info('${conversationId} - Customer is not responding');
+		result ={}; //Keep the same msg as defined in LE
+	}
+	
+	callback(null,result);
+  
+  
+/*Output:
+See what we get in input.payload for the event Conversation idle
+
+{
+	"timestamp": 1664895458899,
+	"level": "Info",
+	"message": "Event Triggered {\"general\":{\"type\":\"UPSERT\",\"convId\":\"47bfff5b-7f83-4298-8435-db16d5c000fc\",\"effectiveTTR\":-1,\"cbotEventType\":\"CONSUMER_NON_RESPONSIVE\",\"originatorId\":\"39600670.3554522450\",\"originatorMetadata\":{\"id\":\"f2905848-33d7-50f4-83f8-c44d0dbd5755\",\"role\":\"ASSIGNED_AGENT\",\"clientProperties\":{\"type\":\".ClientProperties\",\"ipAddress\":\"10.42.138.254, 10.38.134.201\"}},\"serverTimestamp\":1664893655989,\"lastMessageTs\":1664893655989,\"clientIpAddress\":\"10.42.138.254, 10.38.134.201\",\"lastMessageComposer\":\"ASSIGNED_AGENT\",\"startTs\":1664893653533,\"newConvState\":\"OPEN\",\"campaignInfo\":{\"campaignId\":3554523350,\"engagementId\":3554569850},\"sessionId\":\"VLTH5QawSeSfUJjy4BLKIA\",\"contextType\":\"SharkContext\",\"clientLanguage\":\"en-US\",\"visitorId\":\"BkNDdmZmZjMzUyNDdiNjY1\",\"clientFeatures\":[\"PHOTO_SHARING\",\"CO_BROWSE\",\"QUICK_REPLIES\",\"MARKDOWN_HYPERLINKS\",\"AUTO_MESSAGES\",\"MULTI_DIALOG\",\"FILE_SHARING\",\"RICH_CONTENT\"],\"dialogId\":\"47bfff5b-7f83-4298-8435-db16d5c000fc\",\"inOffHours\":false,\"lastAgentMsgTs\":1664893655989},\"start\":{\"firstConversation\":false},\"end\":{},\"idle\":{\"lastConsumerMsgTs\":1664893653615,\"agentNonResponsive\":600000,\"consumerNonResponsive\":1800000,\"convNotTakenTime\":1800000},\"mid\":{},\"ttr\":{\"newTtr\":{\"ttrType\":\"NORMAL\",\"value\":3600}},\"routing\":{\"newSkillId\":\"3554423450\"},\"participantChange\":{\"newParticipants\":[{\"id\":\"f2905848-33d7-50f4-83f8-c44d0dbd5755\",\"role\":\"ASSIGNED_AGENT\"},{\"id\":\"e4cc96c0-d2f4-595f-a777-876c9b000ca1\",\"role\":\"CONTROLLER\"},{\"id\":\"cbb408e5664fcd8840a3b9df404535bf0ee9eea2373c3d08e5f98df9303d6187\",\"role\":\"CONSUMER\"}]}}",
+	"extras": [],
+	"lambdaUUID": "6f73ac37-b4f1-4fcc-8b57-efd91eee06ef",
+	"requestId": "92efe9b8-f063-ca22-6818-9d897f2b5a89"
+}
+*/
+  
